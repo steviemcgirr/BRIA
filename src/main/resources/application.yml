@@ -1,0 +1,82 @@
+server:
+  port: 3274
+spring:
+  application:
+    name: journeybot
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  profiles:
+    active: slack,facebook
+  dataSource:
+    url: jdbc:postgresql://localhost:5432/time_tables
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: baxtor321
+    platform: postgres
+    hikari:
+      minimumIdle: 5  
+      maximumPoolSize: 20
+      connectionTimeout: 30000
+      idleTimeout: 600000
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        generate_statistics: false
+        temp:
+          use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: none
+      format_sql: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+swagger:
+  access-token-url: ${AUTH_SERVER_TOKEN_URL}
+  client-id: ${RESOURCE}
+  client-secret: ${CREDENTIALS_SECRET}
+  realm: ${REALM}
+  base-package: com.recommenderx.axiom.dashboard.controller
+  app-name: axiom
+  app-title: Axiom Dashboard API
+  host: ${DEPLOYMENT_URL:#{null}}
+# dashboardConfig:
+#   sidebarDisplaySize: ${SIDEBAR_DISPLAY_SIZE:4}
+#   deployUrl: ${DEPLOY_URL}
+fbBotToken: fb_token_for_jbot
+fbGraphApi: https://graph.facebook.com/v6.0
+fbPageAccessToken: EAAMZARfL3vA4BAAt2RvOr33pRh5fqozXb3CdSXTcjj19I1L8i1dcWNZBWEDbYlPeLnhMo1R6QyyTEqpNRphU3qRTtE9pWhO1dH2AGrnZCHUzwZAZCmHoiTTFjiwJxqD2jUVc4NRIqg5aJZAtdTWgCNBVEXuVzL0ic7h3ZBStQQ5D0weLfT0815r
+
+logging:
+    level:
+        me:
+           ramswaroop: DEBUG
+        org:
+           springframework:
+              data:
+                elasticsearch:
+                  core: DEBUG
+slackApi: https://slack.com/api
+slackBotToken: <paste your slack bot token>
+slackIncomingWebhookUrl: https://slack.com
+slashCommandToken: <paste your slash command token>
+googleApplicationCredentials: ${GOOGLE_APPLICATION_CREDENTIALS}
+dialogFlow:
+  projectId: journey-bot-ybelxe
+  sessionID: 123456789s
+  languageCode: en-US
+elastic-search-config:
+  ipAddress: localhost
+  clustername: journey_bot
+  port: 9300
+  index: faq
+  type: trainFaq
+
+
+
+
+
+
+
