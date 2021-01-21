@@ -17,17 +17,10 @@ public class JourneyService {
 		this.journeyRepository = journeyRepository;
 	}
 	
-	
 	public List<JourneyStop> findAll(){
-		System.out.println("le bag");
 		return journeyRepository.findAll();
-		
 	}
 
-
-	public Optional<JourneyStop> findByIdJourneys(int i) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 }

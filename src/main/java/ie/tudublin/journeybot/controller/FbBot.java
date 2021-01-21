@@ -35,7 +35,6 @@ import me.ramswaroop.jbot.core.facebook.Bot;
 import me.ramswaroop.jbot.core.facebook.FbService;
 import me.ramswaroop.jbot.core.facebook.models.Attachment;
 import me.ramswaroop.jbot.core.facebook.models.Button;
-import me.ramswaroop.jbot.core.facebook.models.Element;
 import me.ramswaroop.jbot.core.facebook.models.Event;
 import me.ramswaroop.jbot.core.facebook.models.Message;
 import me.ramswaroop.jbot.core.facebook.models.Payload;
@@ -76,7 +75,6 @@ public class FbBot extends Bot {
 	private static Integer JOURNEY_ID;
 	private static Integer fromStation;
 	private static Integer toStation;
-	private static String userMessage;
 	private static QueryResult queryResult;
 	private static ObjectNode objectNode;
 
@@ -111,31 +109,32 @@ public class FbBot extends Bot {
 		User user = fbService.getUser(event.getSender().getId().toString(), pageAccessToken);
 		Button[] quickReplies = new Button[] {
 				new Button().setContentType("text").setTitle("Services Available").setPayload("services available"), };
-		reply(event, new Message().setText("Hi " + user.getFirstName()
+		reply(event, new Message().setText("🤖 Hi " + user.getFirstName()
 				+ ", I am BRIA. Ask me a question or click \"Services Available\" to see how I can assist your journey needs")
 				.setQuickReplies(quickReplies));
 	}
 
 	@Controller(events = { EventType.MESSAGE, EventType.POSTBACK }, next = "whereFrom")
 	public void onReceiveDM(Event event) throws Exception {
-
+        //call extraction service
 		queryResult = DetectIntentTexts.detectIntentTexts(dialogFlowConfig.getProjectId(), event.getMessage().getText(),
 				dialogFlowConfig.getSessionID(), dialogFlowConfig.getLanguageCode());
-
+        //call FAQ service and return response to user
 		if (queryResult.getIntent().getDisplayName().equals(FAQ_INTENT)) {
 			String reply = faqService.findByQuestion(event.getMessage().getText());
 			Button[] quickReplies = new Button[] {
 					new Button().setContentType("text").setTitle("YES").setPayload("more info"),
 					new Button().setContentType("text").setTitle("NO").setPayload("later"), };
-			reply(event, new Message().setText(reply + " \nWas this the information you were looking for? ")
+			reply(event, new Message().setText(reply + " \n🤖 Was this the information you were looking for? ")
 					.setQuickReplies(quickReplies));
 		}
-
+        // start conversation for timetable info
 		if (queryResult.getIntent().getDisplayName().equals(TO_DESTINATION_INTENT)) {
 			startConversation(event, "whereFrom");
-			reply(event, "Where are you departing from? Just tell me the town or station name.");
+			reply(event, "🤖 Where are you departing from? Just tell me the town or station name.");
 
 		}
+		// handle misunderstood messages
 		if (queryResult.getIntent().getDisplayName().equals(DEFAULT_FALLBACK_INTENT)) {
 			queryResult.getFulfillmentText();
 			reply(event, queryResult.getFulfillmentText());
@@ -145,30 +144,31 @@ public class FbBot extends Bot {
 
 	@Controller
 	public void whereFrom(Event event) throws Exception {
+		//call extraction service
 		QueryResult departStation = DetectIntentTexts.detectIntentTexts(dialogFlowConfig.getProjectId(),
 				event.getMessage().getText(), dialogFlowConfig.getSessionID(), dialogFlowConfig.getLanguageCode());
 		stopConversation(event);
-		System.out.println("this departing station: "
-				+ departStation.getParameters().getFieldsOrThrow("stations").getStringValue());
+		//call decision engine and return times 
 		objectNode = journeyTimeService.findJourneyTimes(queryResult,
 				departStation.getParameters().getFieldsOrThrow("stations").getStringValue());
 		stopConversation(event);
-		if (objectNode.get(TRANSPORT_TYPE).asText().equals(TRAIN)) {
+		//display correct reply to user
+		if (objectNode.get(TRANSPORT_TYPE).asText().equals(TRAIN)) {//if there is trains running
 			if (objectNode.get(TRANSPORT_RUNNING).asBoolean(true)) {
 				Button[] quickReplies = new Button[] {
 						new Button().setContentType("text").setTitle("MORE INFO").setPayload("more info"),
-						new Button().setContentType("text").setTitle("LATER TRAINS").setPayload("later journeys"), };
+						new Button().setContentType("text").setTitle("LATER TRAINS").setPayload("later times"), };
 				JOURNEY_ID = objectNode.get(JOURNEY_ID_KEY).intValue();
 				fromStation = objectNode.get(FROM_STATION_KEY).intValue();
 				toStation = objectNode.get(TO_STATION_KEY).intValue();
 				reply(event, new Message().setText(objectNode.get(MESSAGE).asText()).setQuickReplies(quickReplies));
-			} else {
+			} else { //if there is no trains running
 				Button[] quickReplies = new Button[] {
 						new Button().setContentType("text").setTitle("TRAINS TOMORROW").setPayload("times tomorrow"),
 						new Button().setContentType("text").setTitle("SEE BUSES").setPayload("see buses"), };
 				reply(event, new Message().setText(objectNode.get(MESSAGE).asText()).setQuickReplies(quickReplies));
 			}
-		} else {
+		} else {//if there is buses running
 			if (objectNode.get(TRANSPORT_RUNNING).asBoolean(true)) {
 				Button[] quickReplies = new Button[] {
 						new Button().setContentType("text").setTitle("MORE INFO").setPayload("more info"),
@@ -177,7 +177,7 @@ public class FbBot extends Bot {
 				fromStation = objectNode.get(FROM_STATION_KEY).intValue();
 				toStation = objectNode.get(TO_STATION_KEY).intValue();
 				reply(event, new Message().setText(objectNode.get(MESSAGE).asText()).setQuickReplies(quickReplies));
-			} else {
+			} else {//if there is no buses running
 				Button[] quickReplies = new Button[] {
 						new Button().setContentType("text").setTitle("BUSES TOMORROW").setPayload("times tomorrow"),
 
@@ -187,14 +187,13 @@ public class FbBot extends Bot {
 		}
 
 	}
-
+	
 	@Controller(events = EventType.QUICK_REPLY, pattern = "(later times)")
 	public void laterTimes(Event event) {
 		String reply = journeyTimeService.laterJourneyTimes(objectNode);
 		reply(event, reply);
 
 	}
-
 	@Controller(events = EventType.QUICK_REPLY, pattern = "times tomorrow")
 	public void timesTomorrow(Event event) {
 		String reply = journeyTimeService.getJourneyTimesTomorrow(objectNode);
@@ -203,11 +202,19 @@ public class FbBot extends Bot {
 
 	@Controller(events = EventType.QUICK_REPLY, pattern = "services available")
 	public void onReceiveQuickReply(Event event) {
-		reply(event, "I can provide time table information and scheduling for Irish rail and Bus Éireann services.\n"
-				+ "I am also here to help with any questions you may have relating to these services.");
+		
+		Button[] quickReplies = new Button[] { new Button().setContentType("text").setTitle("HELP").setPayload("help"),
+				new Button().setContentType("text").setTitle("NO THANKS").setPayload("no"), };
+		reply(event, new Message().setText("🤖 I can provide time table information and scheduling for Irish rail and Bus Éireann services.\n"
+				+ "I am also here to help with any questions you may have relating to these services. \n\nTo see how I work press help").setQuickReplies(quickReplies));
+	}
+	
+	@Controller(events = EventType.QUICK_REPLY, pattern = "help")
+	public void onReceiveHelp(Event event) {
+		reply(event, "🤖 *For timetable info* \n -tell me where you need to go e.g. \"next train to Dublin\"\n-then I'll ask where you are\n-I'll give you the info\n\n"
+				+ "*For FAQ info*\n -I can answer questions such as \"Can I bring my bike on the train?\"");
 
 	}
-
 	@Controller(events = EventType.QUICK_REPLY, pattern = "(more info)")
 	public void onReceiveMoreInfo(Event event) {
 

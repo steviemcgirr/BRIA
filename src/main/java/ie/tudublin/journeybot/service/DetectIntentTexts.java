@@ -17,54 +17,41 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-/**
- * DialogFlow API Detect Intent sample with text inputs.
- */
 @Service
 public class DetectIntentTexts {
- public static QueryResult detectIntentTexts(String projectId, String messgae, String sessionId,  String languageCode) throws Exception {
-      
-	  Map<String, QueryResult> queryResults = Maps.newHashMap();
-	  
-	  
-    // Instantiates a client
-    try (SessionsClient sessionsClient = SessionsClient.create()) {
-      // Set the session name using the sessionId (UUID) and projectID (my-project-id)
-      SessionName session = SessionName.of(projectId, sessionId);
-      System.out.println("Session Path: " + session.toString());
+	public static QueryResult detectIntentTexts(String projectId, String messgae, String sessionId, String languageCode)
+			throws Exception {
 
-      // Detect intents for each text input
-     
-        // Set the text (hello) and language code (en-US) for the query
-        Builder textInput = TextInput.newBuilder().setText(messgae).setLanguageCode(languageCode);
+		// Instantiates a client
+		try (SessionsClient sessionsClient = SessionsClient.create()) {
+			// Set the session name using the sessionId (UUID) and projectID (my-project-id)
+			SessionName session = SessionName.of(projectId, sessionId);
+			System.out.println("Session Path: " + session.toString());
 
-        // Build the query with the TextInput
-        QueryInput queryInput = QueryInput.newBuilder().setText(textInput).build();
+			// Detect intents for each text input
 
-        // Performs the detect intent request
-        DetectIntentResponse response = sessionsClient.detectIntent(session, queryInput);
+			// Set the text (hello) and language code (en-US) for the query
+			Builder textInput = TextInput.newBuilder().setText(messgae).setLanguageCode(languageCode);
 
-        // Display the query result
-        QueryResult queryResult = response.getQueryResult();
+			// Build the query with the TextInput
+			QueryInput queryInput = QueryInput.newBuilder().setText(textInput).build();
 
-        System.out.println("====================");
-        System.out.format("Query Text: '%s'\n", queryResult.getQueryText());
-        System.out.format("Detected Intent: %s (confidence: %f)\n",
-            queryResult.getIntent().getDisplayName(), queryResult.getIntentDetectionConfidence());
-        System.out.format("Fulfillment Text: '%s'\n", queryResult.getFulfillmentText());
-        System.out.format("Parameters Text: '%s'\n", queryResult.getParameters());
-        
-//        System.out.format("Destination: '%s'\n", queryResult.getParameters().containsFields("stations"));
-//        
-//        
-//        System.out.println(queryResult.getParameters().getFieldsOrThrow("stations"));
-//        
-        
+			// Performs the detect intent request
+			DetectIntentResponse response = sessionsClient.detectIntent(session, queryInput);
 
-        return queryResult;
-      }
-    
-    
-  }
-  // [END dialogflow_detect_intent_text]
+			// Display the query result
+			QueryResult queryResult = response.getQueryResult();
+
+			System.out.println("====================");
+			System.out.format("Query Text: '%s'\n", queryResult.getQueryText());
+			System.out.format("Detected Intent: %s (confidence: %f)\n", queryResult.getIntent().getDisplayName(),
+					queryResult.getIntentDetectionConfidence());
+			System.out.format("Fulfillment Text: '%s'\n", queryResult.getFulfillmentText());
+			System.out.format("Parameters Text: '%s'\n", queryResult.getParameters());
+
+			return queryResult;
+		}
+
+	}
+
 }

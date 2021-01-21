@@ -17,6 +17,4 @@ public class DialogFlowConfig {
 	private String projectId;
 	private String sessionID;
 	private String languageCode;
-	
-
 }

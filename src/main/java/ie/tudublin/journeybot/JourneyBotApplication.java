@@ -47,16 +47,6 @@ public class JourneyBotApplication implements CommandLineRunner {
 				"/Users/stevenmcgirr/eclipse-workspace/journey-bot/src/main/resources/journey-bot-ybelxe-466d29a8515f.json"));
 		Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
 
-//        System.out.println("Buckets:");
-//        Page<Bucket> buckets = storage.list();
-//        for (Bucket bucket : buckets.iterateAll()) {
-//          System.out.println(bucket.toString());
-//        
-//
-//      
-//     
-//    }
-
 	}
 
 	private final FAQService faqService;

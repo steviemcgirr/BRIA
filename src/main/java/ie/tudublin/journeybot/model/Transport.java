@@ -61,7 +61,6 @@ public class Transport {
 	@Convert(converter = TransportTypeConverter.class)
 	private TransportType transportType;
 	
-
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "transport")
     private Set<JourneyStop> journeyStops;
 	

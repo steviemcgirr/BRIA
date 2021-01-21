@@ -61,7 +61,6 @@ public class FAQService {
 				.setFetchSource(include, exclude).setFrom(0).setSize(60).setExplain(true).execute().actionGet();
 		SearchHit[] results = response.getHits().getHits();
 	
-		
 		if (results.length > 0) {
 			String sourceDoc = results[0].getSourceAsString();
 			JSONObject json = new JSONObject(sourceDoc);
@@ -69,10 +68,9 @@ public class FAQService {
 			answer = json.get("answer").toString();
 		}
 		
-
 		if (answer.equals("") || answer == null) {
 			System.out.println("ElasticSearch Found no answer");
-			return null;
+			return "🤖 Sorry I have no answer for this right now but I get smarter with every interaction.";
 		}
 
 		return answer;	

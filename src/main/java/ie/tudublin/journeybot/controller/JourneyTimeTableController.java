@@ -39,41 +39,39 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 @RequestMapping(JourneyTimeTableController.PATH)
 public class JourneyTimeTableController {
-	
+
 	public static final String PATH = "/journeys";
-	
+
 	private static final String QUOTE = "\"";
 	private static final String TERMS = "terms";
 	private static final String PHRASES = "phrases";
-	
+
 	private final JourneyInfoService journeyInfoService;
 	private final JourneyTimeService journeyTimeService;
-    private final DialogFlowConfig dialogFlowConfig;
+	private final DialogFlowConfig dialogFlowConfig;
 	private final DetectIntentTexts detectIntentTexts;
 	private final JourneyService journeyService;
 	private final FAQService faqService;
-	
-	
-	
-	
+
 	@Autowired
-	public JourneyTimeTableController(JourneyInfoService journeyInfoService, JourneyTimeService journeyTimeService, DialogFlowConfig dialogFlowConfig, 
-	 DetectIntentTexts detectIntentTexts, JourneyService journeyService, FAQService faqService ) {
-		this.journeyInfoService =  journeyInfoService;
+	public JourneyTimeTableController(JourneyInfoService journeyInfoService, JourneyTimeService journeyTimeService,
+			DialogFlowConfig dialogFlowConfig, DetectIntentTexts detectIntentTexts, JourneyService journeyService,
+			FAQService faqService) {
+		this.journeyInfoService = journeyInfoService;
 		this.journeyTimeService = journeyTimeService;
 		this.dialogFlowConfig = dialogFlowConfig;
 		this.detectIntentTexts = detectIntentTexts;
 		this.journeyService = journeyService;
-		this.faqService =  faqService;
-		
+		this.faqService = faqService;
+
 	}
-	
+
 	@GetMapping
 	public List<JourneyInfoResponse> getJourneyInfo() {
 		log.info("Retrieving all journeys");
 		return journeyInfoService.getAllJourneyInfo();
 	}
-	
+
 	@GetMapping("/faq")
 	public String askFAQ() throws UnknownHostException {
 		log.info("Retrieving all journeys");
@@ -81,91 +79,37 @@ public class JourneyTimeTableController {
 		String tag = "Are dogs allowed on the train?";
 		return faqService.findByQuestion(tag);
 	}
-	
-	
-//	@GetMapping("/faq")
-//	public String askFAQ(@RequestParam("query")String query) throws Exception{
-//		
-//		Map<String, List<String>> termsPhrases =  faqService.getListsOfTermAndPhrases(query);
-//		
-//		List<String> terms = termsPhrases.get(TERMS);
-//		List<String> phrases = termsPhrases.get(PHRASES);
-//		
-//		for (String string : phrases) {
-//			
-//			System.out.println("these phrases: "+string);
-//			
-//		}
-//		
-//		for (String string : terms) {
-//			
-//			System.out.println("these terms: "+string);
-//		}
-//		
-//		
-//		
-//	     return "hi";
-//	}
-	
-	
-	
-	
+
 	@GetMapping("/journeys")
 	public String journeys() {
-		
+
 		List<JourneyStop> journeyStop = journeyService.findAll();
-		
+
 		for (JourneyStop js : journeyStop) {
-			System.out.println("Hey there sexy " +js.getStop().getName());
-			
+			System.out.println("Hey there sexy " + js.getStop().getName());
+
 		}
-		
+
 		return "hey";
 	}
-	
+
 	@GetMapping("/test")
 	public String testMagee() {
 		log.info("Retrieving all journeys");
 		return "sack";
 	}
-	
-//	@GetMapping("/journey-times")
-//	public List<JourneyTimesResponse> times(){
-//		return journeyTimeService.findAllJourneyTimes();
-//		
-//		
-//	}
-	
+
 	@GetMapping("/station")
-	public String stations(){
+	public String stations() {
 		return journeyTimeService.getStationById();
-		
-		
+
 	}
-//	
-//	@GetMapping("/journey-to-station")
-//	public List<JourneyTimesResponse> journeyToStaion(){
-//		return journeyTimeService.findJourneysToDestFromNow();
-//		
-//		
-//	}
-	
+
 	@GetMapping("/station-name")
-	public QueryResult stationName() throws Exception{
-		String messsage =  "next journey to sligo";
-		return DetectIntentTexts.detectIntentTexts(dialogFlowConfig.getProjectId(), messsage, 
+	public QueryResult stationName() throws Exception {
+		String messsage = "next journey to sligo";
+		return DetectIntentTexts.detectIntentTexts(dialogFlowConfig.getProjectId(), messsage,
 				dialogFlowConfig.getSessionID(), dialogFlowConfig.getLanguageCode());
 	}
-	
-//	@GetMapping("/stops")
-//	public String stops(@RequestParam("id")Integer id) throws Exception{
-//	     return journeyTimeService.getAllTimesAndStops(id);
-//	}
-	
-//	@GetMapping("/fb-message")
-//	public ObjectNode repsondToMessage(@RequestParam("message")String message) throws Exception{
-//		return journeyTimeService.findJourneyToDestFromNow(message);
-//	}
-	
 
 }

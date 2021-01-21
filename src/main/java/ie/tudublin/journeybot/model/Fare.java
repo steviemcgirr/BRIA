@@ -26,8 +26,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Fare {
 	
-	
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
