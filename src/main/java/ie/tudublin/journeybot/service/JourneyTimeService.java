@@ -124,7 +124,6 @@ public class JourneyTimeService {
 					orginStation.get());
 		}
          
-		 
 		if (queryResult.getParameters().getFieldsOrThrow(DEPARTING).getStringValue().equals(NEXT_TRAIN)
 				|| queryResult.getParameters().getFieldsOrThrow(DEPARTING).getStringValue().equals(NEXT_BUS)) {
 			return getNextJourneyTime(times, objectNode, trainsRunningBoolean, journeyTimesResponse, timeString,
